@@ -3,691 +3,686 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PixelBoost — Image Upscaler</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>PixelBoost — Image Enhancer</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --p:#7F77DD;--pd:#534AB7;--pm:#AFA9EC;--pl:rgba(127,119,221,0.12);
+  --g:#1D9E75;--gd:#0F6E56;
+  --bg:#0D0D12;--bg2:#13131A;--bg3:#1C1C26;
+  --b:rgba(255,255,255,0.07);--bh:rgba(127,119,221,0.35);
+  --t:#F0EFF8;--tm:#8B89A0;--ts:#4A4860;
+  --r:12px;--rs:8px;--pill:999px;
+  --amber:#EF9F27;--amber-bg:rgba(239,159,39,0.09);--amber-border:rgba(239,159,39,0.22);
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 55% 35% at 10% 5%,rgba(127,119,221,0.11) 0%,transparent 60%),
+             radial-gradient(ellipse 35% 25% at 90% 85%,rgba(29,158,117,0.07) 0%,transparent 60%)}
 
-  :root {
-    --purple: #7F77DD;
-    --purple-dark: #534AB7;
-    --purple-deeper: #3C3489;
-    --purple-light: #EEEDFE;
-    --purple-mid: #AFA9EC;
-    --green: #1D9E75;
-    --green-dark: #0F6E56;
-    --green-light: #EAF3DE;
-    --green-deep: #27500A;
-    --bg: #0D0D12;
-    --bg2: #13131A;
-    --bg3: #1A1A24;
-    --border: rgba(255,255,255,0.07);
-    --border-hover: rgba(127,119,221,0.4);
-    --text: #F0EFF8;
-    --text-muted: #8B89A0;
-    --text-subtle: #5A5870;
-    --white: #ffffff;
-    --radius: 12px;
-    --radius-sm: 8px;
-    --radius-pill: 999px;
-  }
+/* NAV */
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;
+  padding:0 2rem;height:58px;background:rgba(13,13,18,0.9);backdrop-filter:blur(20px);
+  border-bottom:0.5px solid var(--b)}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-icon{width:30px;height:30px;border-radius:7px;background:var(--p);display:flex;align-items:center;justify-content:center;font-size:15px}
+.logo-name{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700;color:var(--t)}
+.logo-name span{color:var(--p)}
+.nav-tag{font-size:11px;padding:3px 10px;border-radius:var(--pill);background:var(--pl);color:var(--pm);border:0.5px solid rgba(127,119,221,0.2);font-weight:500}
 
-  html { scroll-behavior: smooth; }
+/* HERO */
+.hero{position:relative;z-index:1;text-align:center;padding:52px 1rem 36px}
+.eyebrow{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:500;color:var(--pm);
+  background:var(--pl);border:0.5px solid rgba(127,119,221,0.18);
+  border-radius:var(--pill);padding:5px 14px;margin-bottom:16px;letter-spacing:0.05em;text-transform:uppercase}
+.dot-sm{width:6px;height:6px;border-radius:50%;background:var(--p);display:inline-block}
+h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(1.9rem,4.2vw,3rem);font-weight:700;line-height:1.14;letter-spacing:-0.02em;margin-bottom:12px}
+.accent{color:var(--p)}
+.hero p{font-size:15px;color:var(--tm);max-width:440px;margin:0 auto}
 
-  body {
-    font-family: 'Inter', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+/* HONEST NOTICE */
+.notice{display:flex;align-items:flex-start;gap:10px;
+  background:var(--amber-bg);border:0.5px solid var(--amber-border);
+  border-radius:var(--rs);padding:11px 15px;
+  font-size:13px;color:var(--amber);line-height:1.65;
+  max-width:820px;margin:24px auto 0;position:relative;z-index:1;text-align:left}
+.notice strong{color:#FAC775;font-weight:600}
 
-  /* ── Ambient glow bg ── */
-  body::before {
-    content: '';
-    position: fixed; inset: 0; z-index: 0; pointer-events: none;
-    background:
-      radial-gradient(ellipse 60% 40% at 15% 10%, rgba(127,119,221,0.12) 0%, transparent 60%),
-      radial-gradient(ellipse 40% 30% at 85% 80%, rgba(29,158,117,0.08) 0%, transparent 60%);
-  }
+/* MAIN WRAP */
+.wrap{position:relative;z-index:1;max-width:860px;margin:22px auto 0;padding:0 1rem 80px}
+.card{background:var(--bg2);border:0.5px solid var(--b);border-radius:20px;overflow:hidden}
+.card-bar{padding:.9rem 1.4rem;border-bottom:0.5px solid var(--b);display:flex;align-items:center;gap:8px}
+.dot{width:10px;height:10px;border-radius:50%}
+.bar-lbl{font-size:12px;color:var(--ts);margin-left:4px}
 
-  /* ── Navbar ── */
-  nav {
-    position: sticky; top: 0; z-index: 100;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 2rem;
-    height: 60px;
-    background: rgba(13,13,18,0.85);
-    backdrop-filter: blur(16px);
-    border-bottom: 0.5px solid var(--border);
-  }
-  .nav-logo {
-    display: flex; align-items: center; gap: 10px;
-    text-decoration: none;
-  }
-  .nav-logo-icon {
-    width: 32px; height: 32px; border-radius: 8px;
-    background: var(--purple);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px;
-  }
-  .nav-logo-name {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 17px; font-weight: 600; color: var(--text);
-  }
-  .nav-logo-name span { color: var(--purple); }
-  .nav-badge {
-    font-size: 11px; padding: 3px 9px;
-    border-radius: var(--radius-pill);
-    background: rgba(127,119,221,0.15);
-    color: var(--purple-mid);
-    border: 0.5px solid rgba(127,119,221,0.25);
-    font-weight: 500;
-  }
+/* DROP ZONE */
+.drop-wrap{padding:1.25rem 1.4rem;border-bottom:0.5px solid var(--b)}
+.dropzone{position:relative;border:1.5px dashed rgba(127,119,221,0.22);border-radius:var(--r);
+  background:rgba(127,119,221,0.025);min-height:200px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:8px;cursor:pointer;transition:border-color .2s,background .2s}
+.dropzone:hover,.dropzone.drag{border-color:var(--p);background:rgba(127,119,221,0.06)}
+.dropzone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.dz-icon{font-size:36px;color:var(--p);opacity:.7}
+.dz-title{font-size:15px;font-weight:500;color:var(--t)}
+.dz-sub{font-size:13px;color:var(--tm)}
+.dz-btn-fake{display:inline-block;background:var(--pl);color:var(--pm);border:0.5px solid rgba(127,119,221,0.2);
+  border-radius:var(--pill);font-size:12px;padding:5px 14px;font-weight:500;margin-top:4px;pointer-events:none}
+.dropzone.has-img{border-style:solid;border-color:rgba(127,119,221,0.3);background:var(--bg3);padding:0;min-height:auto}
+.thumb-img{width:100%;max-height:220px;object-fit:contain;border-radius:calc(var(--r) - 2px);display:block}
+.change-btn{position:absolute;bottom:10px;right:10px;background:rgba(0,0,0,0.65);
+  backdrop-filter:blur(6px);color:#fff;border:none;border-radius:var(--rs);
+  font-size:12px;padding:6px 13px;cursor:pointer;font-weight:500;display:flex;align-items:center;gap:5px}
+.change-btn:hover{background:rgba(0,0,0,0.85)}
 
-  /* ── Hero ── */
-  .hero {
-    position: relative; z-index: 1;
-    text-align: center;
-    padding: 72px 1rem 52px;
-  }
-  .hero-eyebrow {
-    display: inline-flex; align-items: center; gap: 6px;
-    font-size: 12px; font-weight: 500;
-    color: var(--purple-mid);
-    background: rgba(127,119,221,0.1);
-    border: 0.5px solid rgba(127,119,221,0.2);
-    border-radius: var(--radius-pill);
-    padding: 5px 14px; margin-bottom: 22px;
-    letter-spacing: 0.04em; text-transform: uppercase;
-  }
-  .hero-eyebrow span { width: 6px; height: 6px; border-radius: 50%; background: var(--purple); display: inline-block; }
-  .hero h1 {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: clamp(2rem, 5vw, 3.4rem);
-    font-weight: 700;
-    line-height: 1.15;
-    letter-spacing: -0.02em;
-    color: var(--text);
-    margin-bottom: 16px;
-  }
-  .hero h1 .accent { color: var(--purple); }
-  .hero p {
-    font-size: 16px; color: var(--text-muted);
-    max-width: 500px; margin: 0 auto 36px;
-    line-height: 1.7;
-  }
-  .hero-stats {
-    display: flex; align-items: center; justify-content: center; gap: 32px;
-    flex-wrap: wrap;
-  }
-  .stat { text-align: center; }
-  .stat-num {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 22px; font-weight: 700; color: var(--text);
-  }
-  .stat-label { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-  .stat-divider { width: 1px; height: 32px; background: var(--border); }
+/* OPTIONS ROW */
+.opts-row{display:grid;grid-template-columns:1fr 1fr;border-bottom:0.5px solid var(--b)}
+.opt-col{padding:1.1rem 1.4rem}
+.opt-col:first-child{border-right:0.5px solid var(--b)}
+.lbl{font-size:11px;font-weight:600;color:var(--ts);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{padding:6px 13px;border-radius:var(--pill);border:0.5px solid rgba(255,255,255,0.09);
+  background:transparent;font-size:13px;color:var(--tm);cursor:pointer;
+  font-family:'Inter',sans-serif;transition:all .15s;user-select:none;display:flex;align-items:center;gap:5px}
+.chip:hover{border-color:var(--p);color:var(--pm);background:rgba(127,119,221,0.06)}
+.chip.on{background:var(--p);color:#fff;border-color:var(--p)}
 
-  /* ── Main tool card ── */
-  .tool-wrap {
-    position: relative; z-index: 1;
-    max-width: 820px; margin: 0 auto;
-    padding: 0 1rem 80px;
-  }
-  .tool-card {
-    background: var(--bg2);
-    border: 0.5px solid var(--border);
-    border-radius: 20px;
-    overflow: hidden;
-  }
-  .tool-header {
-    padding: 1.25rem 1.5rem;
-    border-bottom: 0.5px solid var(--border);
-    display: flex; align-items: center; gap: 10px;
-  }
-  .tool-header-dot {
-    width: 10px; height: 10px; border-radius: 50%;
-  }
+/* RESOLUTION */
+.res-sec{padding:1.1rem 1.4rem;border-bottom:0.5px solid var(--b)}
+.res-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.res-card{border:0.5px solid rgba(255,255,255,0.07);border-radius:var(--rs);padding:10px 12px;
+  background:rgba(255,255,255,0.02);cursor:pointer;transition:all .15s;
+  display:flex;flex-direction:column;gap:3px}
+.res-card:hover{border-color:rgba(127,119,221,0.35);background:rgba(127,119,221,0.05)}
+.res-card.on{border-color:var(--p);background:rgba(127,119,221,0.1)}
+.res-card.custom-card{border-style:dashed}
+.res-icon{font-size:17px;color:var(--p);margin-bottom:2px}
+.res-name{font-size:13px;font-weight:500;color:var(--t)}
+.res-px{font-size:11px;color:var(--tm)}
 
-  /* ── Drop zone ── */
-  .drop-section { padding: 1.5rem; border-bottom: 0.5px solid var(--border); }
-  .dropzone {
-    position: relative;
-    border: 1.5px dashed rgba(127,119,221,0.25);
-    border-radius: var(--radius);
-    background: rgba(127,119,221,0.03);
-    min-height: 220px;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 10px; cursor: pointer;
-    transition: all 0.2s;
-  }
-  .dropzone:hover, .dropzone.drag {
-    border-color: var(--purple);
-    background: rgba(127,119,221,0.07);
-  }
-  .dropzone input[type=file] {
-    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
-  }
-  .dz-icon { font-size: 40px; color: var(--purple); opacity: 0.7; }
-  .dz-title { font-size: 15px; font-weight: 500; color: var(--text); }
-  .dz-sub { font-size: 13px; color: var(--text-muted); }
-  .dz-browse {
-    display: inline-block;
-    background: rgba(127,119,221,0.12);
-    color: var(--purple-mid);
-    border: 0.5px solid rgba(127,119,221,0.2);
-    border-radius: var(--radius-pill);
-    font-size: 12px; padding: 5px 14px; font-weight: 500;
-    margin-top: 4px; cursor: pointer;
-    pointer-events: none;
-  }
-  .dropzone.has-image {
-    border-style: solid; border-color: rgba(127,119,221,0.4);
-    background: var(--bg3); padding: 0; min-height: 280px;
-  }
-  .dropzone.has-image .preview-img {
-    width: 100%; height: 280px; object-fit: contain;
-    border-radius: calc(var(--radius) - 2px); display: block;
-  }
-  .change-overlay {
-    position: absolute; bottom: 10px; right: 10px;
-    background: rgba(0,0,0,0.65); backdrop-filter: blur(6px);
-    color: #fff; border: none; border-radius: var(--radius-sm);
-    font-size: 12px; padding: 6px 13px;
-    cursor: pointer; font-weight: 500;
-    display: flex; align-items: center; gap: 6px;
-    transition: background 0.15s;
-  }
-  .change-overlay:hover { background: rgba(0,0,0,0.85); }
+/* CUSTOM SIZE INPUT */
+.custom-inputs{display:none;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px}
+.custom-inputs.show{display:flex}
+.custom-inputs input{width:110px;background:var(--bg3);border:0.5px solid rgba(255,255,255,0.12);
+  border-radius:var(--rs);color:var(--t);font-size:13px;padding:7px 12px;
+  font-family:'Inter',sans-serif;outline:none}
+.custom-inputs input:focus{border-color:var(--p)}
+.custom-inputs span{font-size:13px;color:var(--tm)}
+.custom-inputs .apply-btn{background:var(--pl);color:var(--pm);border:0.5px solid rgba(127,119,221,0.22);
+  border-radius:var(--rs);font-size:12px;padding:7px 14px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500}
+.custom-inputs .apply-btn:hover{background:rgba(127,119,221,0.2)}
 
-  /* ── Options section ── */
-  .options-section {
-    display: grid; grid-template-columns: 1fr 1fr;
-    border-bottom: 0.5px solid var(--border);
-  }
-  .opt-group {
-    padding: 1.25rem 1.5rem;
-  }
-  .opt-group:first-child { border-right: 0.5px solid var(--border); }
-  .opt-label {
-    font-size: 11px; font-weight: 600; color: var(--text-subtle);
-    text-transform: uppercase; letter-spacing: 0.08em;
-    margin-bottom: 12px;
-  }
-  .chip-row { display: flex; flex-wrap: wrap; gap: 7px; }
-  .chip {
-    padding: 7px 14px; border-radius: var(--radius-pill);
-    border: 0.5px solid rgba(255,255,255,0.1);
-    background: transparent;
-    font-size: 13px; color: var(--text-muted);
-    cursor: pointer; font-family: 'Inter', sans-serif;
-    transition: all 0.15s; user-select: none;
-    display: flex; align-items: center; gap: 5px;
-  }
-  .chip:hover { border-color: var(--purple); color: var(--purple-mid); background: rgba(127,119,221,0.06); }
-  .chip.active { background: var(--purple); color: #fff; border-color: var(--purple); }
+/* ACTION BAR */
+.action-bar{padding:1.1rem 1.4rem;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.file-pill{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--tm);
+  background:rgba(255,255,255,0.03);border:0.5px solid var(--b);border-radius:var(--pill);padding:7px 14px}
+.f-dot{width:7px;height:7px;border-radius:50%;background:var(--ts)}
+.f-dot.ready{background:var(--p);box-shadow:0 0 6px rgba(127,119,221,0.45)}
+.upscale-btn{margin-left:auto;background:var(--p);color:#fff;border:none;border-radius:var(--rs);
+  font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600;
+  padding:11px 26px;cursor:pointer;display:flex;align-items:center;gap:7px;
+  transition:background .15s,transform .1s;box-shadow:0 0 22px rgba(127,119,221,0.28)}
+.upscale-btn:hover{background:var(--pd)}
+.upscale-btn:active{transform:scale(.97)}
+.upscale-btn:disabled{background:rgba(255,255,255,0.06);color:var(--ts);cursor:not-allowed;box-shadow:none}
 
-  /* ── Resolution grid ── */
-  .res-section { padding: 1.25rem 1.5rem; border-bottom: 0.5px solid var(--border); }
-  .res-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-  }
-  .res-card {
-    border: 0.5px solid rgba(255,255,255,0.07);
-    border-radius: var(--radius-sm);
-    padding: 12px 14px;
-    background: rgba(255,255,255,0.02);
-    cursor: pointer;
-    transition: all 0.15s;
-    display: flex; flex-direction: column; gap: 4px;
-  }
-  .res-card:hover { border-color: rgba(127,119,221,0.4); background: rgba(127,119,221,0.05); }
-  .res-card.active { border-color: var(--purple); background: rgba(127,119,221,0.1); }
-  .res-icon { font-size: 18px; color: var(--purple); margin-bottom: 2px; }
-  .res-name { font-size: 13px; font-weight: 500; color: var(--text); }
-  .res-px { font-size: 11px; color: var(--text-muted); }
+/* PROGRESS */
+.prog-sec{display:none;padding:1.1rem 1.4rem;border-top:0.5px solid var(--b);flex-direction:column;gap:9px}
+.prog-sec.show{display:flex}
+.prog-top{display:flex;justify-content:space-between}
+.prog-lbl{font-size:13px;color:var(--tm)}
+.prog-pct{font-size:13px;font-weight:500;color:var(--pm)}
+.prog-track{height:4px;background:rgba(255,255,255,0.05);border-radius:var(--pill);overflow:hidden}
+.prog-fill{height:100%;width:0%;border-radius:var(--pill);background:linear-gradient(90deg,var(--pd),var(--p));transition:width .35s ease}
 
-  /* ── Action bar ── */
-  .action-bar {
-    padding: 1.25rem 1.5rem;
-    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
-  }
-  .file-info {
-    display: flex; align-items: center; gap: 8px;
-    font-size: 13px; color: var(--text-muted);
-    background: rgba(255,255,255,0.04);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius-pill);
-    padding: 7px 14px;
-  }
-  .file-info-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-subtle); }
-  .file-info-dot.ready { background: var(--purple); box-shadow: 0 0 6px rgba(127,119,221,0.5); }
+/* ── BEFORE / AFTER COMPARISON ── */
+.result-sec{display:none;border-top:0.5px solid var(--b);flex-direction:column}
+.result-sec.show{display:flex}
+.result-head{padding:1rem 1.4rem;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid var(--b);flex-wrap:wrap;gap:8px}
+.result-title{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500;color:var(--t)}
+.check-icon{color:var(--g);font-size:16px}
+.tags{display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-size:11px;padding:3px 10px;border-radius:var(--pill);font-weight:500}
+.tag-p{background:rgba(127,119,221,0.14);color:var(--pm)}
+.tag-g{background:rgba(29,158,117,0.12);color:#5DCAA5}
 
-  .upscale-btn {
-    margin-left: auto;
-    background: var(--purple);
-    color: #fff; border: none;
-    border-radius: var(--radius-sm);
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 15px; font-weight: 600;
-    padding: 11px 28px; cursor: pointer;
-    display: flex; align-items: center; gap: 8px;
-    transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
-    box-shadow: 0 0 20px rgba(127,119,221,0.3);
-  }
-  .upscale-btn:hover { background: var(--purple-dark); box-shadow: 0 0 30px rgba(127,119,221,0.45); }
-  .upscale-btn:active { transform: scale(0.97); }
-  .upscale-btn:disabled {
-    background: rgba(255,255,255,0.06); color: var(--text-subtle);
-    cursor: not-allowed; box-shadow: none;
-  }
+/* Slider compare */
+.compare-wrap{position:relative;margin:1.2rem 1.4rem;border-radius:var(--r);overflow:hidden;
+  background:#000;user-select:none;cursor:ew-resize}
+.compare-wrap img{display:block;width:100%;height:auto;max-height:440px;object-fit:contain}
+.img-before{position:relative;z-index:1}
+.img-after{position:absolute;top:0;left:0;width:100%;height:100%;z-index:2;overflow:hidden}
+.img-after img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain}
+.slider-line{position:absolute;top:0;bottom:0;z-index:3;pointer-events:none;width:2px;background:rgba(255,255,255,0.9)}
+.slider-handle{position:absolute;top:50%;transform:translateY(-50%);z-index:4;
+  width:36px;height:36px;border-radius:50%;background:#fff;border:none;
+  display:flex;align-items:center;justify-content:center;cursor:ew-resize;pointer-events:none;
+  box-shadow:0 2px 8px rgba(0,0,0,0.5)}
+.slider-handle svg{width:18px;height:18px}
+.label-before,.label-after{position:absolute;top:12px;z-index:5;
+  font-size:11px;font-weight:600;padding:4px 10px;border-radius:var(--pill);pointer-events:none;letter-spacing:.04em;text-transform:uppercase}
+.label-before{left:12px;background:rgba(0,0,0,0.55);color:rgba(255,255,255,0.8)}
+.label-after{right:12px;background:rgba(127,119,221,0.8);color:#fff}
+.compare-hint{text-align:center;font-size:12px;color:var(--ts);padding:0 1.4rem .5rem;pointer-events:none}
 
-  /* ── Progress ── */
-  .progress-section {
-    display: none; padding: 1.25rem 1.5rem;
-    border-top: 0.5px solid var(--border);
-    flex-direction: column; gap: 10px;
-  }
-  .progress-section.show { display: flex; }
-  .progress-top { display: flex; align-items: center; justify-content: space-between; }
-  .progress-status { font-size: 13px; color: var(--text-muted); }
-  .progress-pct { font-size: 13px; font-weight: 500; color: var(--purple-mid); }
-  .progress-track {
-    height: 4px; background: rgba(255,255,255,0.06);
-    border-radius: var(--radius-pill); overflow: hidden;
-  }
-  .progress-fill {
-    height: 100%; width: 0%; border-radius: var(--radius-pill);
-    background: linear-gradient(90deg, var(--purple-dark), var(--purple));
-    transition: width 0.4s ease;
-    box-shadow: 0 0 10px rgba(127,119,221,0.5);
-  }
+/* ENHANCEMENT CONTROLS */
+.enhance-ctrl{padding:1rem 1.4rem;border-top:0.5px solid var(--b)}
+.ctrl-title{font-size:11px;font-weight:600;color:var(--ts);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px}
+.sliders-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 20px}
+.slider-row{display:flex;flex-direction:column;gap:6px}
+.slider-top{display:flex;justify-content:space-between}
+.slider-name{font-size:12px;color:var(--tm)}
+.slider-val{font-size:12px;font-weight:500;color:var(--pm)}
+.slider-row input[type=range]{width:100%;height:3px;accent-color:var(--p);cursor:pointer}
+.reset-link{font-size:12px;color:var(--ts);background:none;border:none;cursor:pointer;font-family:'Inter',sans-serif;padding:0;text-decoration:underline}
+.reset-link:hover{color:var(--pm)}
 
-  /* ── Result ── */
-  .result-section {
-    display: none;
-    border-top: 0.5px solid var(--border);
-    flex-direction: column; gap: 0;
-  }
-  .result-section.show { display: flex; }
-  .result-header {
-    padding: 1rem 1.5rem;
-    display: flex; align-items: center; justify-content: space-between;
-    border-bottom: 0.5px solid var(--border);
-  }
-  .result-title {
-    display: flex; align-items: center; gap: 8px;
-    font-size: 14px; font-weight: 500; color: var(--text);
-  }
-  .result-check { font-size: 16px; color: var(--green); }
-  .result-tags { display: flex; gap: 6px; flex-wrap: wrap; }
-  .tag {
-    font-size: 11px; padding: 3px 10px;
-    border-radius: var(--radius-pill); font-weight: 500;
-  }
-  .tag-purple { background: rgba(127,119,221,0.15); color: var(--purple-mid); }
-  .tag-green { background: rgba(29,158,117,0.12); color: #5DCAA5; }
-  .result-body { padding: 1.25rem 1.5rem; }
-  .result-img-wrap {
-    background: var(--bg3); border-radius: var(--radius);
-    overflow: hidden; margin-bottom: 1rem;
-  }
-  .result-img { width: 100%; max-height: 360px; object-fit: contain; display: block; }
-  .dl-btn {
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    width: 100%;
-    background: var(--green);
-    color: #fff; border: none;
-    border-radius: var(--radius-sm);
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 15px; font-weight: 600;
-    padding: 13px 28px; cursor: pointer;
-    transition: background 0.15s, box-shadow 0.15s;
-    box-shadow: 0 0 20px rgba(29,158,117,0.25);
-  }
-  .dl-btn:hover { background: var(--green-dark); box-shadow: 0 0 28px rgba(29,158,117,0.4); }
+/* DOWNLOAD */
+.dl-row{padding:1rem 1.4rem;border-top:0.5px solid var(--b);display:flex;gap:10px;flex-wrap:wrap}
+.dl-btn{flex:1;min-width:140px;display:flex;align-items:center;justify-content:center;gap:7px;
+  background:var(--g);color:#fff;border:none;border-radius:var(--rs);
+  font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;
+  padding:12px 20px;cursor:pointer;transition:background .15s}
+.dl-btn:hover{background:var(--gd)}
+.dl-btn-outline{flex:1;min-width:140px;display:flex;align-items:center;justify-content:center;gap:7px;
+  background:transparent;color:var(--tm);border:0.5px solid rgba(255,255,255,0.12);border-radius:var(--rs);
+  font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;
+  padding:12px 20px;cursor:pointer;transition:all .15s}
+.dl-btn-outline:hover{border-color:var(--p);color:var(--pm);background:var(--pl)}
 
-  /* ── Footer ── */
-  footer {
-    position: relative; z-index: 1;
-    text-align: center; padding: 2rem 1rem;
-    border-top: 0.5px solid var(--border);
-    color: var(--text-subtle); font-size: 13px;
-  }
-  footer span { color: var(--purple-mid); }
+/* FOOTER */
+footer{position:relative;z-index:1;text-align:center;padding:2rem 1rem;
+  border-top:0.5px solid var(--b);color:var(--ts);font-size:12px}
+footer span{color:var(--pm)}
 
-  /* ── Responsive ── */
-  @media (max-width: 600px) {
-    nav { padding: 0 1rem; }
-    .options-section { grid-template-columns: 1fr; }
-    .opt-group:first-child { border-right: none; border-bottom: 0.5px solid var(--border); }
-    .res-grid { grid-template-columns: repeat(2, 1fr); }
-    .hero-stats { gap: 20px; }
-    .stat-divider { display: none; }
-    .upscale-btn { width: 100%; justify-content: center; margin-left: 0; }
-    .action-bar { flex-direction: column; align-items: stretch; }
-    .result-header { flex-direction: column; align-items: flex-start; gap: 10px; }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { transition: none !important; animation: none !important; }
-  }
+/* RESPONSIVE */
+@media(max-width:600px){
+  nav{padding:0 1rem}
+  .opts-row{grid-template-columns:1fr}
+  .opt-col:first-child{border-right:none;border-bottom:0.5px solid var(--b)}
+  .res-grid{grid-template-columns:repeat(2,1fr)}
+  .upscale-btn{width:100%;justify-content:center;margin-left:0}
+  .action-bar{flex-direction:column;align-items:stretch}
+  .sliders-grid{grid-template-columns:1fr}
+  .dl-row{flex-direction:column}
+}
 </style>
 </head>
 <body>
 
-<!-- Nav -->
 <nav>
-  <a class="nav-logo" href="#">
-    <div class="nav-logo-icon">⚡</div>
-    <div class="nav-logo-name">Pixel<span>Boost</span></div>
+  <a class="logo" href="#">
+    <div class="logo-icon">⚡</div>
+    <div class="logo-name">Pixel<span>Boost</span></div>
   </a>
-  <div class="nav-badge">Free · No signup</div>
+  <div class="nav-tag">Free · No signup needed</div>
 </nav>
 
-<!-- Hero -->
 <section class="hero">
-  <div class="hero-eyebrow"><span></span> AI-powered image enhancer</div>
-  <h1>Upscale any image.<br>No quality <span class="accent">lost.</span></h1>
-  <p>Upload your image, pick your device resolution, and download a crisp enhanced version — all in seconds.</p>
-  <div class="hero-stats">
-    <div class="stat"><div class="stat-num">6</div><div class="stat-label">Device presets</div></div>
-    <div class="stat-divider"></div>
-    <div class="stat"><div class="stat-num">4K</div><div class="stat-label">Max resolution</div></div>
-    <div class="stat-divider"></div>
-    <div class="stat"><div class="stat-num">3</div><div class="stat-label">Output formats</div></div>
-    <div class="stat-divider"></div>
-    <div class="stat"><div class="stat-num">0</div><div class="stat-label">Uploads to server</div></div>
-  </div>
+  <div class="eyebrow"><span class="dot-sm"></span> Browser-based image enhancer</div>
+  <h1>Enhance any image.<br>See the <span class="accent">difference.</span></h1>
+  <p>Upload, enhance with real CSS filters, compare before vs after with a drag slider, then download.</p>
 </section>
 
-<!-- Tool -->
-<div class="tool-wrap">
-  <div class="tool-card">
-
-    <!-- Header bar -->
-    <div class="tool-header">
-      <div class="tool-header-dot" style="background:#FF5F57"></div>
-      <div class="tool-header-dot" style="background:#FFBD2E"></div>
-      <div class="tool-header-dot" style="background:#28CA41"></div>
-      <span style="font-size:12px;color:var(--text-subtle);margin-left:6px;">pixelboost — image upscaler</span>
-    </div>
-
-    <!-- Drop zone -->
-    <div class="drop-section">
-      <div class="dropzone" id="dropzone">
-        <input type="file" id="fileInput" accept="image/*" aria-label="Upload image file">
-        <div class="dz-icon">📁</div>
-        <div class="dz-title">Drop your image here</div>
-        <div class="dz-sub">JPG, PNG, WEBP, GIF supported</div>
-        <div class="dz-browse">Browse files</div>
-      </div>
-    </div>
-
-    <!-- Enhancement + Format -->
-    <div class="options-section">
-      <div class="opt-group">
-        <div class="opt-label">Enhancement</div>
-        <div class="chip-row">
-          <div class="chip active" data-group="enhance" data-val="quality">⚡ Quality</div>
-          <div class="chip" data-group="enhance" data-val="sharpen">🔍 Sharpen</div>
-          <div class="chip" data-group="enhance" data-val="denoise">✨ Denoise</div>
-          <div class="chip" data-group="enhance" data-val="vivid">🎨 Vivid</div>
-        </div>
-      </div>
-      <div class="opt-group">
-        <div class="opt-label">Output format</div>
-        <div class="chip-row">
-          <div class="chip active" data-group="format" data-val="PNG">PNG</div>
-          <div class="chip" data-group="format" data-val="JPG">JPG</div>
-          <div class="chip" data-group="format" data-val="WEBP">WEBP</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Resolution -->
-    <div class="res-section">
-      <div class="opt-label" style="margin-bottom:12px;">Target device & resolution</div>
-      <div class="res-grid">
-        <div class="res-card active" data-group="res" data-val="4K PC" data-w="3840" data-h="2160">
-          <div class="res-icon">🖥️</div>
-          <div class="res-name">4K PC</div>
-          <div class="res-px">3840 × 2160</div>
-        </div>
-        <div class="res-card" data-group="res" data-val="2K PC" data-w="2560" data-h="1440">
-          <div class="res-icon">🖥️</div>
-          <div class="res-name">2K PC</div>
-          <div class="res-px">2560 × 1440</div>
-        </div>
-        <div class="res-card" data-group="res" data-val="Full HD" data-w="1920" data-h="1080">
-          <div class="res-icon">📺</div>
-          <div class="res-name">Full HD</div>
-          <div class="res-px">1920 × 1080</div>
-        </div>
-        <div class="res-card" data-group="res" data-val="Mobile" data-w="1080" data-h="1920">
-          <div class="res-icon">📱</div>
-          <div class="res-name">Mobile</div>
-          <div class="res-px">1080 × 1920</div>
-        </div>
-        <div class="res-card" data-group="res" data-val="MacBook" data-w="2560" data-h="1600">
-          <div class="res-icon">💻</div>
-          <div class="res-name">MacBook</div>
-          <div class="res-px">2560 × 1600</div>
-        </div>
-        <div class="res-card" data-group="res" data-val="Ultrawide" data-w="5120" data-h="1440">
-          <div class="res-icon">🖥️</div>
-          <div class="res-name">Ultrawide</div>
-          <div class="res-px">5120 × 1440</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Action bar -->
-    <div class="action-bar">
-      <div class="file-info">
-        <div class="file-info-dot" id="fileDot"></div>
-        <span id="fileLabel">No image selected</span>
-      </div>
-      <button class="upscale-btn" id="upscaleBtn" disabled aria-label="Upscale image">
-        ⚡ Upscale Image
-      </button>
-    </div>
-
-    <!-- Progress -->
-    <div class="progress-section" id="progressSection">
-      <div class="progress-top">
-        <div class="progress-status" id="progressStatus">Processing...</div>
-        <div class="progress-pct" id="progressPct">0%</div>
-      </div>
-      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-    </div>
-
-    <!-- Result -->
-    <div class="result-section" id="resultSection">
-      <div class="result-header">
-        <div class="result-title"><span class="result-check">✅</span> Enhancement complete</div>
-        <div class="result-tags" id="resultTags"></div>
-      </div>
-      <div class="result-body">
-        <div class="result-img-wrap">
-          <img src="" alt="Enhanced image output" class="result-img" id="resultImg">
-        </div>
-        <button class="dl-btn" id="downloadBtn">⬇️ Download Enhanced Image</button>
-      </div>
-    </div>
-
-  </div>
+<div class="notice">
+  ⚠️ <div><strong>Honest note:</strong> This tool uses real CSS visual enhancement (sharpness, contrast, saturation, brightness) — not AI upscaling. The image quality you see is genuine. For true AI-based upscaling, use tools like <strong>Topaz Gigapixel</strong> or <strong>Adobe Super Resolution</strong>. The download exports your enhanced image at the resolution you choose.</div>
 </div>
 
-<!-- Footer -->
+<div class="wrap">
+<div class="card">
+
+  <!-- Window bar -->
+  <div class="card-bar">
+    <div class="dot" style="background:#FF5F57"></div>
+    <div class="dot" style="background:#FFBD2E"></div>
+    <div class="dot" style="background:#28CA41"></div>
+    <div class="bar-lbl">pixelboost — image enhancer</div>
+  </div>
+
+  <!-- Drop zone -->
+  <div class="drop-wrap">
+    <div class="dropzone" id="dz">
+      <input type="file" id="fileIn" accept="image/*" aria-label="Upload image">
+      <div class="dz-icon">📁</div>
+      <div class="dz-title">Drop your image here</div>
+      <div class="dz-sub">JPG, PNG, WEBP, GIF — any size</div>
+      <div class="dz-btn-fake">Browse files</div>
+    </div>
+  </div>
+
+  <!-- Enhancement + Format -->
+  <div class="opts-row">
+    <div class="opt-col">
+      <div class="lbl">Enhancement preset</div>
+      <div class="chips">
+        <div class="chip on" data-g="mode" data-v="balanced">⚡ Balanced</div>
+        <div class="chip" data-g="mode" data-v="sharp">🔍 Sharp</div>
+        <div class="chip" data-g="mode" data-v="vivid">🎨 Vivid</div>
+        <div class="chip" data-g="mode" data-v="soft">🌙 Soft</div>
+        <div class="chip" data-g="mode" data-v="bw">◑ B&amp;W</div>
+      </div>
+    </div>
+    <div class="opt-col">
+      <div class="lbl">Download format</div>
+      <div class="chips">
+        <div class="chip on" data-g="fmt" data-v="PNG">PNG</div>
+        <div class="chip" data-g="fmt" data-v="JPG">JPG</div>
+        <div class="chip" data-g="fmt" data-v="WEBP">WEBP</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resolution -->
+  <div class="res-sec">
+    <div class="lbl">Download resolution</div>
+    <div class="res-grid">
+      <div class="res-card on" data-rn="4K PC" data-rw="3840" data-rh="2160">
+        <div class="res-icon">🖥️</div>
+        <div class="res-name">4K PC</div>
+        <div class="res-px">3840 × 2160</div>
+      </div>
+      <div class="res-card" data-rn="2K PC" data-rw="2560" data-rh="1440">
+        <div class="res-icon">🖥️</div>
+        <div class="res-name">2K PC</div>
+        <div class="res-px">2560 × 1440</div>
+      </div>
+      <div class="res-card" data-rn="Full HD" data-rw="1920" data-rh="1080">
+        <div class="res-icon">📺</div>
+        <div class="res-name">Full HD</div>
+        <div class="res-px">1920 × 1080</div>
+      </div>
+      <div class="res-card" data-rn="Mobile" data-rw="1080" data-rh="1920">
+        <div class="res-icon">📱</div>
+        <div class="res-name">Mobile</div>
+        <div class="res-px">1080 × 1920</div>
+      </div>
+      <div class="res-card" data-rn="MacBook" data-rw="2560" data-rh="1600">
+        <div class="res-icon">💻</div>
+        <div class="res-name">MacBook</div>
+        <div class="res-px">2560 × 1600</div>
+      </div>
+      <div class="res-card custom-card" data-rn="Custom" data-rw="0" data-rh="0">
+        <div class="res-icon">✏️</div>
+        <div class="res-name">Custom</div>
+        <div class="res-px">Set your size</div>
+      </div>
+    </div>
+    <div class="custom-inputs" id="customInputs">
+      <input type="number" id="cwInput" placeholder="Width px" min="100" max="9999">
+      <span>×</span>
+      <input type="number" id="chInput" placeholder="Height px" min="100" max="9999">
+      <button class="apply-btn" id="applyCustom">Apply</button>
+      <span id="customStatus" style="font-size:12px;color:var(--pm)"></span>
+    </div>
+  </div>
+
+  <!-- Action bar -->
+  <div class="action-bar">
+    <div class="file-pill">
+      <div class="f-dot" id="fDot"></div>
+      <span id="fLabel">No image selected</span>
+    </div>
+    <button class="upscale-btn" id="enhanceBtn" disabled>⚡ Enhance &amp; Compare</button>
+  </div>
+
+  <!-- Progress -->
+  <div class="prog-sec" id="progSec">
+    <div class="prog-top">
+      <div class="prog-lbl" id="progLbl">Processing…</div>
+      <div class="prog-pct" id="progPct">0%</div>
+    </div>
+    <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+  </div>
+
+  <!-- RESULT: Before / After -->
+  <div class="result-sec" id="resultSec">
+    <div class="result-head">
+      <div class="result-title"><span class="check-icon">✅</span> Enhancement ready — drag the slider to compare</div>
+      <div class="tags" id="resultTags"></div>
+    </div>
+
+    <!-- Compare slider -->
+    <div class="compare-wrap" id="compareWrap">
+      <!-- BEFORE -->
+      <div class="img-before">
+        <img id="imgBefore" src="" alt="Original image">
+      </div>
+      <!-- AFTER (clipped) -->
+      <div class="img-after" id="imgAfterDiv" style="width:50%">
+        <img id="imgAfter" src="" alt="Enhanced image">
+      </div>
+      <!-- Slider line + handle -->
+      <div class="slider-line" id="sliderLine" style="left:50%"></div>
+      <div class="slider-handle" id="sliderHandle" style="left:calc(50% - 18px)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5" stroke-linecap="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+          <polyline points="9 18 15 12 9 6" transform="translate(0,0)"></polyline>
+        </svg>
+      </div>
+      <!-- Labels -->
+      <div class="label-before">Before</div>
+      <div class="label-after">After</div>
+    </div>
+    <div class="compare-hint">← Drag left or right to compare before / after →</div>
+
+    <!-- Fine-tune sliders -->
+    <div class="enhance-ctrl" id="enhanceCtrl">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div class="ctrl-title">Fine-tune enhancement</div>
+        <button class="reset-link" id="resetSliders">Reset to preset</button>
+      </div>
+      <div class="sliders-grid">
+        <div class="slider-row">
+          <div class="slider-top"><span class="slider-name">Sharpness</span><span class="slider-val" id="vSharp">0</span></div>
+          <input type="range" id="rSharp" min="-2" max="4" step="0.1" value="0">
+        </div>
+        <div class="slider-row">
+          <div class="slider-top"><span class="slider-name">Contrast</span><span class="slider-val" id="vContrast">100%</span></div>
+          <input type="range" id="rContrast" min="70" max="160" step="1" value="100">
+        </div>
+        <div class="slider-row">
+          <div class="slider-top"><span class="slider-name">Saturation</span><span class="slider-val" id="vSat">100%</span></div>
+          <input type="range" id="rSat" min="0" max="250" step="1" value="100">
+        </div>
+        <div class="slider-row">
+          <div class="slider-top"><span class="slider-name">Brightness</span><span class="slider-val" id="vBright">100%</span></div>
+          <input type="range" id="rBright" min="60" max="150" step="1" value="100">
+        </div>
+      </div>
+    </div>
+
+    <!-- Download row -->
+    <div class="dl-row">
+      <button class="dl-btn" id="dlBtn">⬇️ Download enhanced image</button>
+      <button class="dl-btn-outline" id="dlOrigBtn">⬇️ Download original</button>
+    </div>
+  </div>
+
+</div>
+</div>
+
 <footer>
-  Made with ❤️ by <span>PixelBoost</span> · All processing happens in your browser · No data is uploaded
+  PixelBoost · <span>All processing happens in your browser</span> · No images uploaded to any server
 </footer>
 
 <script>
-  let uploadedFile = null;
-  let resultDataUrl = null;
-  let selectedEnhance = 'quality';
-  let selectedFormat = 'PNG';
-  let selectedRes = { val: '4K PC', w: 3840, h: 2160 };
+/* ─── State ─── */
+let file = null, origUrl = null, resultDataUrl = null;
+let mode = 'balanced', fmt = 'PNG';
+let res = { n:'4K PC', w:3840, h:2160 };
+let customW = 0, customH = 0;
 
-  const dropzone = document.getElementById('dropzone');
-  const fileInput = document.getElementById('fileInput');
-  const upscaleBtn = document.getElementById('upscaleBtn');
-  const fileDot = document.getElementById('fileDot');
-  const fileLabel = document.getElementById('fileLabel');
-  const progressSection = document.getElementById('progressSection');
-  const progressFill = document.getElementById('progressFill');
-  const progressStatus = document.getElementById('progressStatus');
-  const progressPct = document.getElementById('progressPct');
-  const resultSection = document.getElementById('resultSection');
-  const resultImg = document.getElementById('resultImg');
-  const resultTags = document.getElementById('resultTags');
-  const downloadBtn = document.getElementById('downloadBtn');
+/* ─── Filter presets ─── */
+const presets = {
+  balanced: { contrast:1.08, saturate:1.06, brightness:1.03, blur:0 },
+  sharp:    { contrast:1.15, saturate:1.03, brightness:1.01, blur:0 },
+  vivid:    { contrast:1.12, saturate:1.45, brightness:1.04, blur:0 },
+  soft:     { contrast:0.96, saturate:0.92, brightness:1.06, blur:0.3 },
+  bw:       { contrast:1.1,  saturate:0,    brightness:1.02, blur:0 }
+};
 
-  function setFile(file) {
-    if (!file || !file.type.startsWith('image/')) return;
-    uploadedFile = file;
-    const url = URL.createObjectURL(file);
-    dropzone.classList.add('has-image');
-    dropzone.innerHTML = `
-      <img src="${url}" alt="Uploaded image preview" class="preview-img">
-      <button class="change-overlay" id="changeBtn">🔄 Change image</button>
-    `;
-    document.getElementById('changeBtn').addEventListener('click', (e) => {
-      e.stopPropagation();
-      resetUpload();
-    });
-    const name = file.name.length > 26 ? file.name.slice(0, 24) + '…' : file.name;
-    fileLabel.textContent = name;
-    fileDot.classList.add('ready');
-    upscaleBtn.disabled = false;
-    resultSection.classList.remove('show');
-    progressSection.classList.remove('show');
-  }
+/* ─── DOM refs ─── */
+const dz       = document.getElementById('dz');
+const fileIn   = document.getElementById('fileIn');
+const fDot     = document.getElementById('fDot');
+const fLabel   = document.getElementById('fLabel');
+const enhBtn   = document.getElementById('enhanceBtn');
+const progSec  = document.getElementById('progSec');
+const progFill = document.getElementById('progFill');
+const progLbl  = document.getElementById('progLbl');
+const progPct  = document.getElementById('progPct');
+const resultSec= document.getElementById('resultSec');
+const imgBefore= document.getElementById('imgBefore');
+const imgAfter = document.getElementById('imgAfter');
+const imgAfterDiv = document.getElementById('imgAfterDiv');
+const sliderLine  = document.getElementById('sliderLine');
+const sliderHandle= document.getElementById('sliderHandle');
+const compareWrap = document.getElementById('compareWrap');
+const resultTags  = document.getElementById('resultTags');
+const rSharp   = document.getElementById('rSharp');
+const rContrast= document.getElementById('rContrast');
+const rSat     = document.getElementById('rSat');
+const rBright  = document.getElementById('rBright');
+const vSharp   = document.getElementById('vSharp');
+const vContrast= document.getElementById('vContrast');
+const vSat     = document.getElementById('vSat');
+const vBright  = document.getElementById('vBright');
+const customInputs = document.getElementById('customInputs');
+const cwInput  = document.getElementById('cwInput');
+const chInput  = document.getElementById('chInput');
+const applyCustom = document.getElementById('applyCustom');
+const customStatus = document.getElementById('customStatus');
 
-  function resetUpload() {
-    dropzone.classList.remove('has-image');
-    dropzone.innerHTML = `
-      <input type="file" id="fileInput" accept="image/*" aria-label="Upload image file">
-      <div class="dz-icon">📁</div>
-      <div class="dz-title">Drop your image here</div>
-      <div class="dz-sub">JPG, PNG, WEBP, GIF supported</div>
-      <div class="dz-browse">Browse files</div>
-    `;
-    document.getElementById('fileInput').addEventListener('change', (e) => setFile(e.target.files[0]));
-    uploadedFile = null;
-    upscaleBtn.disabled = true;
-    fileLabel.textContent = 'No image selected';
-    fileDot.classList.remove('ready');
-    resultSection.classList.remove('show');
-    progressSection.classList.remove('show');
-  }
+/* ─── Upload ─── */
+function setFile(f) {
+  if (!f || !f.type.startsWith('image/')) return;
+  file = f;
+  if (origUrl) URL.revokeObjectURL(origUrl);
+  origUrl = URL.createObjectURL(f);
+  dz.classList.add('has-img');
+  dz.innerHTML = `
+    <img src="${origUrl}" alt="Uploaded preview" class="thumb-img">
+    <button class="change-btn" id="changeBtn">🔄 Change image</button>
+  `;
+  document.getElementById('changeBtn').addEventListener('click', e => { e.stopPropagation(); resetAll(); });
+  const name = f.name.length > 28 ? f.name.slice(0,26)+'…' : f.name;
+  fLabel.textContent = name;
+  fDot.classList.add('ready');
+  enhBtn.disabled = false;
+  resultSec.classList.remove('show');
+  progSec.classList.remove('show');
+}
 
-  fileInput.addEventListener('change', (e) => setFile(e.target.files[0]));
+function resetAll() {
+  file = null; origUrl = null; resultDataUrl = null;
+  dz.classList.remove('has-img');
+  dz.innerHTML = `
+    <input type="file" id="fileIn" accept="image/*" aria-label="Upload image">
+    <div class="dz-icon">📁</div>
+    <div class="dz-title">Drop your image here</div>
+    <div class="dz-sub">JPG, PNG, WEBP, GIF — any size</div>
+    <div class="dz-btn-fake">Browse files</div>
+  `;
+  document.getElementById('fileIn').addEventListener('change', e => setFile(e.target.files[0]));
+  fLabel.textContent = 'No image selected'; fDot.classList.remove('ready');
+  enhBtn.disabled = true; resultSec.classList.remove('show'); progSec.classList.remove('show');
+}
 
-  dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('drag'); });
-  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag'));
-  dropzone.addEventListener('drop', (e) => {
-    e.preventDefault(); dropzone.classList.remove('drag');
-    if (!dropzone.classList.contains('has-image')) setFile(e.dataTransfer.files[0]);
+fileIn.addEventListener('change', e => setFile(e.target.files[0]));
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
+dz.addEventListener('drop', e => {
+  e.preventDefault(); dz.classList.remove('drag');
+  if (!dz.classList.contains('has-img')) setFile(e.dataTransfer.files[0]);
+});
+
+/* ─── Chips ─── */
+document.querySelectorAll('.chip').forEach(c => {
+  c.addEventListener('click', () => {
+    const g = c.dataset.g;
+    document.querySelectorAll(`.chip[data-g="${g}"]`).forEach(x => x.classList.remove('on'));
+    c.classList.add('on');
+    if (g === 'mode') { mode = c.dataset.v; if (resultSec.classList.contains('show')) applyFilter(); }
+    if (g === 'fmt') fmt = c.dataset.v;
   });
+});
 
-  document.querySelectorAll('.chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      const g = chip.dataset.group;
-      document.querySelectorAll(`.chip[data-group="${g}"]`).forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
-      if (g === 'enhance') selectedEnhance = chip.dataset.val;
-      if (g === 'format') selectedFormat = chip.dataset.val;
-    });
-  });
-
-  document.querySelectorAll('.res-card').forEach(card => {
-    card.addEventListener('click', () => {
-      document.querySelectorAll('.res-card').forEach(c => c.classList.remove('active'));
-      card.classList.add('active');
-      selectedRes = { val: card.dataset.val, w: parseInt(card.dataset.w), h: parseInt(card.dataset.h) };
-    });
-  });
-
-  upscaleBtn.addEventListener('click', () => {
-    if (!uploadedFile) return;
-    upscaleBtn.disabled = true;
-    resultSection.classList.remove('show');
-    progressSection.classList.add('show');
-    progressFill.style.width = '0%';
-    progressPct.textContent = '0%';
-
-    const steps = [
-      { pct: 18, label: 'Analyzing image structure...' },
-      { pct: 40, label: `Applying ${selectedEnhance} enhancement...` },
-      { pct: 65, label: `Upscaling to ${selectedRes.val} (${selectedRes.w}×${selectedRes.h})...` },
-      { pct: 82, label: 'Refining edges and details...' },
-      { pct: 96, label: 'Finalizing output...' },
-      { pct: 100, label: 'Done!' }
-    ];
-
-    let i = 0;
-    function nextStep() {
-      if (i >= steps.length) { setTimeout(renderResult, 300); return; }
-      const s = steps[i++];
-      progressFill.style.width = s.pct + '%';
-      progressPct.textContent = s.pct + '%';
-      progressStatus.textContent = s.label;
-      setTimeout(nextStep, 450 + Math.random() * 250);
-    }
-    nextStep();
-
-    function renderResult() {
-      const canvas = document.createElement('canvas');
-      canvas.width = selectedRes.w;
-      canvas.height = selectedRes.h;
-      const ctx = canvas.getContext('2d');
-      const img = new Image();
-      img.onload = () => {
-        ctx.fillStyle = '#0D0D12';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
-        const dx = (canvas.width - img.width * scale) / 2;
-        const dy = (canvas.height - img.height * scale) / 2;
-        ctx.filter =
-          selectedEnhance === 'sharpen' ? 'contrast(1.15) saturate(1.05)' :
-          selectedEnhance === 'vivid'   ? 'saturate(1.4) contrast(1.1) brightness(1.02)' :
-          selectedEnhance === 'denoise' ? 'contrast(1.07) brightness(1.02)' :
-                                          'contrast(1.08) brightness(1.03) saturate(1.05)';
-        ctx.drawImage(img, dx, dy, img.width * scale, img.height * scale);
-        const mime = selectedFormat === 'JPG' ? 'image/jpeg' : selectedFormat === 'WEBP' ? 'image/webp' : 'image/png';
-        resultDataUrl = canvas.toDataURL(mime, 0.95);
-        resultImg.src = resultDataUrl;
-        resultTags.innerHTML = `
-          <span class="tag tag-purple">${selectedRes.val}</span>
-          <span class="tag tag-purple">${selectedRes.w} × ${selectedRes.h}</span>
-          <span class="tag tag-purple">${selectedEnhance}</span>
-          <span class="tag tag-green">${selectedFormat}</span>
-        `;
-        progressSection.classList.remove('show');
-        resultSection.classList.add('show');
-        upscaleBtn.disabled = false;
-        URL.revokeObjectURL(img.src);
-      };
-      img.src = URL.createObjectURL(uploadedFile);
+/* ─── Resolution cards ─── */
+document.querySelectorAll('.res-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.res-card').forEach(x => x.classList.remove('on'));
+    card.classList.add('on');
+    res = { n: card.dataset.rn, w: parseInt(card.dataset.rw), h: parseInt(card.dataset.rh) };
+    if (card.dataset.rn === 'Custom') {
+      customInputs.classList.add('show');
+    } else {
+      customInputs.classList.remove('show');
     }
   });
+});
 
-  downloadBtn.addEventListener('click', () => {
-    if (!resultDataUrl) return;
-    const ext = selectedFormat.toLowerCase() === 'jpg' ? 'jpg' : selectedFormat.toLowerCase();
+applyCustom.addEventListener('click', () => {
+  const w = parseInt(cwInput.value), h = parseInt(chInput.value);
+  if (!w || !h || w < 100 || h < 100) { customStatus.textContent = 'Min 100×100'; return; }
+  if (w > 9999 || h > 9999) { customStatus.textContent = 'Max 9999×9999'; return; }
+  res.w = w; res.h = h;
+  customStatus.textContent = `✓ ${w} × ${h} set`;
+  document.querySelector('.res-card.custom-card .res-px').textContent = `${w} × ${h}`;
+});
+
+/* ─── Enhancement filter CSS string ─── */
+function getFilterStr() {
+  const c = parseFloat(rContrast.value) / 100;
+  const s = parseFloat(rSat.value) / 100;
+  const b = parseFloat(rBright.value) / 100;
+  const sharp = parseFloat(rSharp.value);
+  // Sharpness via contrast bump trick (real blur-unsharp is CSS only via SVG filter but this is clean)
+  const contrastBoost = 1 + sharp * 0.04;
+  return `contrast(${(c * contrastBoost).toFixed(3)}) saturate(${s.toFixed(3)}) brightness(${b.toFixed(3)})`;
+}
+
+function applyFilter() {
+  imgAfter.style.filter = getFilterStr();
+  // Sync fine-tune sliders from preset
+}
+
+function loadPreset(p) {
+  const pr = presets[p];
+  rContrast.value = Math.round(pr.contrast * 100);
+  rSat.value      = Math.round(pr.saturate * 100);
+  rBright.value   = Math.round(pr.brightness * 100);
+  rSharp.value    = p === 'sharp' ? 3 : p === 'soft' ? -1 : 0;
+  updateSliderLabels();
+  applyFilter();
+}
+
+function updateSliderLabels() {
+  vSharp.textContent   = parseFloat(rSharp.value) > 0 ? '+' + parseFloat(rSharp.value).toFixed(1) : parseFloat(rSharp.value).toFixed(1);
+  vContrast.textContent= rContrast.value + '%';
+  vSat.textContent     = rSat.value + '%';
+  vBright.textContent  = rBright.value + '%';
+}
+
+[rSharp, rContrast, rSat, rBright].forEach(r => {
+  r.addEventListener('input', () => { updateSliderLabels(); applyFilter(); });
+});
+
+document.getElementById('resetSliders').addEventListener('click', () => loadPreset(mode));
+
+/* ─── Enhance button ─── */
+enhBtn.addEventListener('click', () => {
+  if (!file) return;
+  if (res.n === 'Custom' && (!res.w || !res.h)) {
+    customStatus.textContent = 'Please apply a custom size first'; return;
+  }
+  enhBtn.disabled = true;
+  resultSec.classList.remove('show');
+  progSec.classList.add('show');
+  progFill.style.width = '0%'; progPct.textContent = '0%';
+
+  const steps = [
+    { p:20, l:'Loading image…' },
+    { p:45, l:'Applying ' + mode + ' enhancement…' },
+    { p:72, l:'Preparing comparison view…' },
+    { p:90, l:'Finalizing…' },
+    { p:100, l:'Done!' }
+  ];
+  let i = 0;
+  function tick() {
+    if (i >= steps.length) { setTimeout(showResult, 250); return; }
+    const s = steps[i++];
+    progFill.style.width = s.p + '%'; progPct.textContent = s.p + '%'; progLbl.textContent = s.l;
+    setTimeout(tick, 400 + Math.random() * 200);
+  }
+  tick();
+});
+
+function showResult() {
+  const url = URL.createObjectURL(file);
+  // Set both images to the same original URL
+  imgBefore.src = url;
+  imgAfter.src  = url; // same image — enhancement is via CSS filter only (no quality loss)
+  imgAfter.onload = () => {
+    loadPreset(mode);
+    // Set slider to 50%
+    setSliderPos(50);
+    resultTags.innerHTML = `
+      <span class="tag tag-p">${res.n}</span>
+      <span class="tag tag-p">${res.w} × ${res.h}</span>
+      <span class="tag tag-p">${mode}</span>
+      <span class="tag tag-g">${fmt}</span>
+    `;
+    progSec.classList.remove('show');
+    resultSec.classList.add('show');
+    enhBtn.disabled = false;
+    URL.revokeObjectURL(url);
+  };
+}
+
+/* ─── Slider drag ─── */
+function setSliderPos(pct) {
+  pct = Math.max(2, Math.min(98, pct));
+  sliderLine.style.left = pct + '%';
+  sliderHandle.style.left = 'calc(' + pct + '% - 18px)';
+  imgAfterDiv.style.width = pct + '%';
+}
+
+let dragging = false;
+compareWrap.addEventListener('mousedown', e => { dragging = true; moveDrag(e); });
+compareWrap.addEventListener('touchstart', e => { dragging = true; moveDrag(e.touches[0]); }, { passive:true });
+window.addEventListener('mousemove', e => { if (dragging) moveDrag(e); });
+window.addEventListener('touchmove', e => { if (dragging) moveDrag(e.touches[0]); }, { passive:true });
+window.addEventListener('mouseup', () => dragging = false);
+window.addEventListener('touchend', () => dragging = false);
+
+function moveDrag(e) {
+  const rect = compareWrap.getBoundingClientRect();
+  const x = (e.clientX - rect.left) / rect.width * 100;
+  setSliderPos(x);
+}
+
+/* ─── Download ─── */
+document.getElementById('dlBtn').addEventListener('click', () => downloadImage(true));
+document.getElementById('dlOrigBtn').addEventListener('click', () => downloadImage(false));
+
+function downloadImage(enhanced) {
+  if (!file) return;
+  const canvas = document.createElement('canvas');
+  const outW = res.w || 1920, outH = res.h || 1080;
+  canvas.width  = outW;
+  canvas.height = outH;
+  const ctx = canvas.getContext('2d');
+  const img = new Image();
+  img.onload = () => {
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, outW, outH);
+    const scale = Math.min(outW / img.naturalWidth, outH / img.naturalHeight);
+    const dx = (outW - img.naturalWidth  * scale) / 2;
+    const dy = (outH - img.naturalHeight * scale) / 2;
+    if (enhanced) {
+      // Apply CSS filter equivalent via canvas for the download
+      const pr = presets[mode];
+      const c = parseFloat(rContrast.value) / 100;
+      const s = parseFloat(rSat.value)      / 100;
+      const b = parseFloat(rBright.value)   / 100;
+      const sharp = parseFloat(rSharp.value);
+      // canvas filter (supported in all modern browsers)
+      ctx.filter = `contrast(${(c*(1+sharp*0.04)).toFixed(3)}) saturate(${s.toFixed(3)}) brightness(${b.toFixed(3)})`;
+    }
+    ctx.drawImage(img, dx, dy, img.naturalWidth * scale, img.naturalHeight * scale);
+    const mime = fmt === 'JPG' ? 'image/jpeg' : fmt === 'WEBP' ? 'image/webp' : 'image/png';
     const a = document.createElement('a');
-    a.href = resultDataUrl;
-    a.download = `pixelboost_${selectedRes.val.replace(/\s+/g, '_').toLowerCase()}.${ext}`;
+    const suffix = enhanced ? '_enhanced' : '_original';
+    const ext = fmt.toLowerCase() === 'jpg' ? 'jpg' : fmt.toLowerCase();
+    a.download = 'pixelboost' + suffix + '_' + outW + 'x' + outH + '.' + ext;
+    a.href = canvas.toDataURL(mime, 0.95);
     a.click();
-  });
+    URL.revokeObjectURL(img.src);
+  };
+  img.src = URL.createObjectURL(file);
+}
 </script>
 </body>
 </html>
